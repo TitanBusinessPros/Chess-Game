@@ -37,60 +37,51 @@
         
         #skip-button {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 24px;
-            background: rgba(255, 0, 0, 0.8);
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            background: rgba(255, 0, 0, 0.9);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1.1rem;
-            opacity: 0.7;
+            font-size: 1.2rem;
+            opacity: 1;
             transition: all 0.3s ease;
-            display: none; /* Initially hidden */
+            display: block; /* Always visible but disabled at first */
             z-index: 10001;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
         
         #skip-button:hover {
-            background: rgba(255, 50, 50, 0.9);
+            background: rgba(255, 50, 50, 1);
             transform: scale(1.05);
         }
         
         #skip-button:disabled {
-            opacity: 0.5;
+            background: rgba(100, 100, 100, 0.7);
             cursor: not-allowed;
+            transform: none;
+        }
+        
+        #skip-button:disabled:hover {
+            background: rgba(100, 100, 100, 0.7);
+            transform: none;
         }
         
         #skip-timer {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: 30px;
+            left: 30px;
             color: white;
-            font-size: 1.2rem;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 16px;
-            border-radius: 5px;
-            z-index: 10001;
-        }
-
-        #sound-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: rgba(0, 100, 255, 0.8);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            font-size: 1.3rem;
             font-weight: bold;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 12px 24px;
+            border-radius: 8px;
             z-index: 10001;
-        }
-
-        #sound-button:hover {
-            background: rgba(0, 120, 255, 0.9);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
 
         /* Existing Styles */
@@ -302,15 +293,36 @@
                 width: 100%;
             }
             
-            #skip-button, #skip-timer, #sound-button {
-                bottom: 10px;
-                font-size: 1rem;
-                padding: 8px 16px;
+            /* Mobile-specific adjustments for skip button and timer */
+            #skip-button {
+                bottom: 15px;
+                right: 15px;
+                padding: 12px 24px;
+                font-size: 1.1rem;
+                min-width: 100px;
             }
             
-            #sound-button {
-                top: 10px;
-                right: 10px;
+            #skip-timer {
+                bottom: 15px;
+                left: 15px;
+                font-size: 1.1rem;
+                padding: 10px 20px;
+                min-width: 180px;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            #skip-button {
+                padding: 10px 20px;
+                font-size: 1rem;
+                min-width: 80px;
+            }
+            
+            #skip-timer {
+                font-size: 1rem;
+                padding: 8px 16px;
+                min-width: 150px;
             }
         }
     </style>
@@ -319,13 +331,12 @@
     <!-- Video Cut Screen - FIXED for full page display -->
     <div id="video-cut-screen">
         <div id="video-container">
-            <video id="cut-screen-video" autoplay muted playsinline>
+            <video id="cut-screen-video" autoplay playsinline>
                 <source src="https://github.com/TitanBusinessPros/Zombie-Outbreak-Honolulu/raw/main/Ad-1-Zombie.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
-            <button id="sound-button">🔊 Unmute Sound</button>
             <div id="skip-timer">Skip available in 5 seconds</div>
-            <button id="skip-button" disabled>Skip</button>
+            <button id="skip-button" disabled>Skip Ad</button>
         </div>
     </div>
 
@@ -372,40 +383,8 @@
             const cutScreenVideo = document.getElementById('cut-screen-video');
             const skipButton = document.getElementById('skip-button');
             const skipTimer = document.getElementById('skip-timer');
-            const soundButton = document.getElementById('sound-button');
             let skipTimerInterval;
             let secondsRemaining = 5;
-            let isSoundEnabled = false;
-
-            // Enable sound function
-            function enableSound() {
-                if (cutScreenVideo.muted) {
-                    cutScreenVideo.muted = false;
-                    cutScreenVideo.volume = 1.0;
-                    soundButton.textContent = "🔊 Sound On";
-                    soundButton.style.background = "rgba(0, 200, 0, 0.8)";
-                    isSoundEnabled = true;
-                    
-                    // Try to play with sound (may require user interaction on some browsers)
-                    cutScreenVideo.play().catch(e => {
-                        console.log("Could not play video with sound:", e);
-                    });
-                }
-            }
-
-            // Add click event to enable sound
-            soundButton.addEventListener('click', () => {
-                enableSound();
-            });
-
-            // Try to enable sound automatically if possible
-            document.addEventListener('click', function enableSoundOnce() {
-                if (!isSoundEnabled) {
-                    enableSound();
-                }
-                // Remove this listener after first click
-                document.removeEventListener('click', enableSoundOnce);
-            });
 
             // Start the countdown timer
             function startSkipTimer() {
@@ -416,13 +395,7 @@
                     if (secondsRemaining <= 0) {
                         clearInterval(skipTimerInterval);
                         skipButton.disabled = false;
-                        skipButton.style.display = 'block';
                         skipTimer.textContent = 'Skip available now!';
-                        
-                        // Try to enable sound when skip becomes available
-                        if (!isSoundEnabled) {
-                            enableSound();
-                        }
                     }
                 }, 1000);
             }
@@ -463,20 +436,22 @@
                 startSkipTimer();
             });
 
-            // Start video automatically (muted initially due to browser policies)
+            // Start video automatically
             cutScreenVideo.play().catch(e => {
                 console.log("Autoplay prevented, trying alternative:", e);
-                // If autoplay fails, show a play button overlay
-                soundButton.textContent = "▶️ Click to Play";
-                soundButton.style.background = "rgba(255, 100, 0, 0.8)";
+                // If autoplay fails, show a message
+                skipTimer.textContent = "Tap to play video";
                 
-                soundButton.addEventListener('click', function playVideo() {
+                // Try to play on user interaction
+                document.addEventListener('click', function playVideoOnce() {
                     cutScreenVideo.play().then(() => {
                         startSkipTimer();
                     }).catch(err => {
                         console.log("Still cannot play:", err);
+                        // If video still won't play, start game after delay
+                        setTimeout(startGame, 2000);
                     });
-                    soundButton.removeEventListener('click', playVideo);
+                    document.removeEventListener('click', playVideoOnce);
                 });
             });
 
