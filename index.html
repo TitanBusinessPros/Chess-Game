@@ -5,6 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess Game</title>
     <style>
+        /* Video Cut Screen Styles - FIXED */
+        #video-cut-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        #video-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #cut-screen-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* This ensures entire video is visible */
+        }
+        
+        #skip-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            display: none; /* Initially hidden */
+            z-index: 10001;
+        }
+        
+        #skip-button:hover {
+            background: rgba(255, 50, 50, 0.9);
+            transform: scale(1.05);
+        }
+        
+        #skip-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #skip-timer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 16px;
+            border-radius: 5px;
+            z-index: 10001;
+        }
+
+        #sound-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 100, 255, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 10001;
+        }
+
+        #sound-button:hover {
+            background: rgba(0, 120, 255, 0.9);
+        }
+
+        /* Existing Styles */
         * {
             margin: 0;
             padding: 0;
@@ -207,10 +296,40 @@
             .square {
                 font-size: 1.8rem;
             }
+            
+            /* Mobile adjustments for video */
+            #video-container {
+                width: 100%;
+            }
+            
+            #skip-button, #skip-timer, #sound-button {
+                bottom: 10px;
+                font-size: 1rem;
+                padding: 8px 16px;
+            }
+            
+            #sound-button {
+                top: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Video Cut Screen - FIXED for full page display -->
+    <div id="video-cut-screen">
+        <div id="video-container">
+            <video id="cut-screen-video" autoplay muted playsinline>
+                <source src="https://github.com/TitanBusinessPros/Zombie-Outbreak-Honolulu/raw/main/Ad-1-Zombie.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <button id="sound-button">🔊 Unmute Sound</button>
+            <div id="skip-timer">Skip available in 5 seconds</div>
+            <button id="skip-button" disabled>Skip</button>
+        </div>
+    </div>
+
+    <!-- Original Game Content -->
     <div class="container">
         <header>
             <h1>Chess Game</h1>
@@ -247,7 +366,129 @@
     </div>
 
     <script>
+        // Video Cut Screen Logic
         document.addEventListener('DOMContentLoaded', () => {
+            const videoCutScreen = document.getElementById('video-cut-screen');
+            const cutScreenVideo = document.getElementById('cut-screen-video');
+            const skipButton = document.getElementById('skip-button');
+            const skipTimer = document.getElementById('skip-timer');
+            const soundButton = document.getElementById('sound-button');
+            let skipTimerInterval;
+            let secondsRemaining = 5;
+            let isSoundEnabled = false;
+
+            // Enable sound function
+            function enableSound() {
+                if (cutScreenVideo.muted) {
+                    cutScreenVideo.muted = false;
+                    cutScreenVideo.volume = 1.0;
+                    soundButton.textContent = "🔊 Sound On";
+                    soundButton.style.background = "rgba(0, 200, 0, 0.8)";
+                    isSoundEnabled = true;
+                    
+                    // Try to play with sound (may require user interaction on some browsers)
+                    cutScreenVideo.play().catch(e => {
+                        console.log("Could not play video with sound:", e);
+                    });
+                }
+            }
+
+            // Add click event to enable sound
+            soundButton.addEventListener('click', () => {
+                enableSound();
+            });
+
+            // Try to enable sound automatically if possible
+            document.addEventListener('click', function enableSoundOnce() {
+                if (!isSoundEnabled) {
+                    enableSound();
+                }
+                // Remove this listener after first click
+                document.removeEventListener('click', enableSoundOnce);
+            });
+
+            // Start the countdown timer
+            function startSkipTimer() {
+                skipTimerInterval = setInterval(() => {
+                    secondsRemaining--;
+                    skipTimer.textContent = `Skip available in ${secondsRemaining} second${secondsRemaining !== 1 ? 's' : ''}`;
+                    
+                    if (secondsRemaining <= 0) {
+                        clearInterval(skipTimerInterval);
+                        skipButton.disabled = false;
+                        skipButton.style.display = 'block';
+                        skipTimer.textContent = 'Skip available now!';
+                        
+                        // Try to enable sound when skip becomes available
+                        if (!isSoundEnabled) {
+                            enableSound();
+                        }
+                    }
+                }, 1000);
+            }
+
+            // Function to hide the video and start the game
+            function startGame() {
+                cutScreenVideo.pause();
+                videoCutScreen.style.opacity = '1';
+                
+                // Fade out animation
+                const fadeOut = setInterval(() => {
+                    if (videoCutScreen.style.opacity > 0) {
+                        videoCutScreen.style.opacity -= 0.05;
+                    } else {
+                        clearInterval(fadeOut);
+                        videoCutScreen.style.display = 'none';
+                        // Initialize the chess game
+                        initChessGame();
+                    }
+                }, 30);
+            }
+
+            // Skip button click handler
+            skipButton.addEventListener('click', () => {
+                if (!skipButton.disabled) {
+                    startGame();
+                }
+            });
+
+            // Video ended handler
+            cutScreenVideo.addEventListener('ended', () => {
+                clearInterval(skipTimerInterval);
+                startGame();
+            });
+
+            // Start the timer when video starts playing
+            cutScreenVideo.addEventListener('play', () => {
+                startSkipTimer();
+            });
+
+            // Start video automatically (muted initially due to browser policies)
+            cutScreenVideo.play().catch(e => {
+                console.log("Autoplay prevented, trying alternative:", e);
+                // If autoplay fails, show a play button overlay
+                soundButton.textContent = "▶️ Click to Play";
+                soundButton.style.background = "rgba(255, 100, 0, 0.8)";
+                
+                soundButton.addEventListener('click', function playVideo() {
+                    cutScreenVideo.play().then(() => {
+                        startSkipTimer();
+                    }).catch(err => {
+                        console.log("Still cannot play:", err);
+                    });
+                    soundButton.removeEventListener('click', playVideo);
+                });
+            });
+
+            // If video fails to load, start game after 5 seconds
+            cutScreenVideo.addEventListener('error', () => {
+                skipTimer.textContent = "Video failed to load. Starting game...";
+                setTimeout(startGame, 2000);
+            });
+        });
+
+        // Chess Game Logic (same as before)
+        function initChessGame() {
             // Game state
             const gameState = {
                 board: [],
@@ -1340,7 +1581,7 @@
 
             // Initialize the game
             initGame();
-        });
+        }
     </script>
 </body>
 </html>
