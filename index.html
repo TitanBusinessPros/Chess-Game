@@ -37,21 +37,24 @@
         
         #skip-button {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
-            padding: 15px 30px;
-            background: rgba(255, 0, 0, 0.9);
+            bottom: 40px;
+            right: 40px;
+            padding: 20px 40px;
+            background: rgba(255, 0, 0, 0.95);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             opacity: 1;
             transition: all 0.3s ease;
             display: block; /* Always visible but disabled at first */
             z-index: 10001;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+            min-width: 160px;
+            text-align: center;
+            border: 3px solid white;
         }
         
         #skip-button:hover {
@@ -60,28 +63,46 @@
         }
         
         #skip-button:disabled {
-            background: rgba(100, 100, 100, 0.7);
+            background: rgba(100, 100, 100, 0.8);
             cursor: not-allowed;
             transform: none;
+            border-color: rgba(255, 255, 255, 0.5);
         }
         
         #skip-button:disabled:hover {
-            background: rgba(100, 100, 100, 0.7);
+            background: rgba(100, 100, 100, 0.8);
             transform: none;
         }
         
         #skip-timer {
             position: absolute;
-            bottom: 30px;
-            left: 30px;
+            bottom: 40px;
+            left: 40px;
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 12px 24px;
-            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 30px;
+            border-radius: 12px;
             z-index: 10001;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+            border: 3px solid #ffcc00;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        #mobile-tap-hint {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            width: 100%;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            z-index: 10002;
+            display: none; /* Initially hidden */
         }
 
         /* Existing Styles */
@@ -293,36 +314,80 @@
                 width: 100%;
             }
             
-            /* Mobile-specific adjustments for skip button and timer */
+            /* Mobile-specific adjustments for skip button and timer - LARGER */
             #skip-button {
-                bottom: 15px;
-                right: 15px;
-                padding: 12px 24px;
-                font-size: 1.1rem;
-                min-width: 100px;
+                bottom: 20px;
+                right: 20px;
+                padding: 25px 30px;
+                font-size: 1.8rem;
+                min-width: 180px;
+                border-width: 4px;
             }
             
             #skip-timer {
-                bottom: 15px;
-                left: 15px;
-                font-size: 1.1rem;
-                padding: 10px 20px;
-                min-width: 180px;
+                bottom: 20px;
+                left: 20px;
+                font-size: 1.6rem;
+                padding: 25px 20px;
+                min-width: 280px;
+                border-width: 4px;
+            }
+            
+            #mobile-tap-hint {
+                display: block;
+                font-size: 1.4rem;
+                padding: 20px;
+                background: rgba(0, 0, 0, 0.85);
             }
         }
         
         /* Extra small screens */
         @media (max-width: 480px) {
             #skip-button {
-                padding: 10px 20px;
-                font-size: 1rem;
-                min-width: 80px;
+                padding: 20px 25px;
+                font-size: 1.6rem;
+                min-width: 160px;
+                bottom: 15px;
+                right: 15px;
             }
             
             #skip-timer {
+                font-size: 1.4rem;
+                padding: 20px 15px;
+                min-width: 250px;
+                bottom: 15px;
+                left: 15px;
+            }
+            
+            #mobile-tap-hint {
+                font-size: 1.2rem;
+                padding: 15px;
+                top: 20px;
+            }
+        }
+        
+        /* Landscape mode on mobile */
+        @media (max-height: 600px) and (orientation: landscape) {
+            #skip-button {
+                padding: 15px 20px;
+                font-size: 1.4rem;
+                min-width: 140px;
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            #skip-timer {
+                font-size: 1.2rem;
+                padding: 15px 20px;
+                min-width: 220px;
+                bottom: 10px;
+                left: 10px;
+            }
+            
+            #mobile-tap-hint {
                 font-size: 1rem;
-                padding: 8px 16px;
-                min-width: 150px;
+                padding: 10px;
+                top: 10px;
             }
         }
     </style>
@@ -335,8 +400,9 @@
                 <source src="https://github.com/TitanBusinessPros/Zombie-Outbreak-Honolulu/raw/main/Ad-1-Zombie.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
+            <div id="mobile-tap-hint">🔊 Tap anywhere to enable sound if needed</div>
             <div id="skip-timer">Skip available in 5 seconds</div>
-            <button id="skip-button" disabled>Skip Ad</button>
+            <button id="skip-button" disabled>SKIP AD</button>
         </div>
     </div>
 
@@ -383,8 +449,46 @@
             const cutScreenVideo = document.getElementById('cut-screen-video');
             const skipButton = document.getElementById('skip-button');
             const skipTimer = document.getElementById('skip-timer');
+            const mobileTapHint = document.getElementById('mobile-tap-hint');
             let skipTimerInterval;
             let secondsRemaining = 5;
+            let isVideoPlaying = false;
+
+            // Function to play video with sound (for mobile browsers)
+            function playVideoWithSound() {
+                // Try to play the video with sound
+                const playPromise = cutScreenVideo.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        // Video started playing
+                        isVideoPlaying = true;
+                        console.log("Video is playing with sound");
+                        startSkipTimer();
+                        
+                        // Try to unmute after a short delay (some browsers require this)
+                        setTimeout(() => {
+                            cutScreenVideo.muted = false;
+                            cutScreenVideo.volume = 1.0;
+                        }, 100);
+                    }).catch(error => {
+                        console.log("Video play failed, trying muted:", error);
+                        
+                        // If play with sound fails, try muted first
+                        cutScreenVideo.muted = true;
+                        cutScreenVideo.play().then(() => {
+                            isVideoPlaying = true;
+                            startSkipTimer();
+                            // Show hint for sound on mobile
+                            mobileTapHint.style.display = 'block';
+                        }).catch(err => {
+                            console.log("Even muted play failed:", err);
+                            // If all else fails, start game after delay
+                            setTimeout(startGame, 2000);
+                        });
+                    });
+                }
+            }
 
             // Start the countdown timer
             function startSkipTimer() {
@@ -395,7 +499,17 @@
                     if (secondsRemaining <= 0) {
                         clearInterval(skipTimerInterval);
                         skipButton.disabled = false;
+                        skipButton.textContent = "SKIP NOW";
+                        skipButton.style.background = "rgba(0, 200, 0, 0.95)";
                         skipTimer.textContent = 'Skip available now!';
+                        skipTimer.style.borderColor = "#00ff00";
+                        
+                        // Try to enable sound when skip becomes available
+                        if (cutScreenVideo.muted) {
+                            cutScreenVideo.muted = false;
+                            cutScreenVideo.volume = 1.0;
+                            mobileTapHint.style.display = 'none';
+                        }
                     }
                 }, 1000);
             }
@@ -431,28 +545,45 @@
                 startGame();
             });
 
-            // Start the timer when video starts playing
-            cutScreenVideo.addEventListener('play', () => {
-                startSkipTimer();
+            // Try to play video automatically when page loads
+            playVideoWithSound();
+
+            // Add click/tap listener to enable sound on mobile
+            document.addEventListener('click', function enableSoundOnTap() {
+                if (cutScreenVideo.muted && isVideoPlaying) {
+                    cutScreenVideo.muted = false;
+                    cutScreenVideo.volume = 1.0;
+                    mobileTapHint.style.display = 'none';
+                    
+                    // Try to replay with sound if needed
+                    if (cutScreenVideo.paused) {
+                        cutScreenVideo.play().catch(e => console.log("Replay failed:", e));
+                    }
+                }
+                
+                // Remove this listener after first successful interaction
+                if (!cutScreenVideo.muted) {
+                    document.removeEventListener('click', enableSoundOnTap);
+                }
             });
 
-            // Start video automatically
-            cutScreenVideo.play().catch(e => {
-                console.log("Autoplay prevented, trying alternative:", e);
-                // If autoplay fails, show a message
-                skipTimer.textContent = "Tap to play video";
+            // Touch events for mobile
+            document.addEventListener('touchstart', function enableSoundOnTouch() {
+                if (cutScreenVideo.muted && isVideoPlaying) {
+                    cutScreenVideo.muted = false;
+                    cutScreenVideo.volume = 1.0;
+                    mobileTapHint.style.display = 'none';
+                    
+                    // Try to replay with sound if needed
+                    if (cutScreenVideo.paused) {
+                        cutScreenVideo.play().catch(e => console.log("Replay failed:", e));
+                    }
+                }
                 
-                // Try to play on user interaction
-                document.addEventListener('click', function playVideoOnce() {
-                    cutScreenVideo.play().then(() => {
-                        startSkipTimer();
-                    }).catch(err => {
-                        console.log("Still cannot play:", err);
-                        // If video still won't play, start game after delay
-                        setTimeout(startGame, 2000);
-                    });
-                    document.removeEventListener('click', playVideoOnce);
-                });
+                // Remove this listener after first successful interaction
+                if (!cutScreenVideo.muted) {
+                    document.removeEventListener('touchstart', enableSoundOnTouch);
+                }
             });
 
             // If video fails to load, start game after 5 seconds
@@ -460,6 +591,13 @@
                 skipTimer.textContent = "Video failed to load. Starting game...";
                 setTimeout(startGame, 2000);
             });
+
+            // Show mobile hint after 2 seconds if still muted
+            setTimeout(() => {
+                if (cutScreenVideo.muted && isVideoPlaying) {
+                    mobileTapHint.style.display = 'block';
+                }
+            }, 2000);
         });
 
         // Chess Game Logic (same as before)
