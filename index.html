@@ -141,6 +141,8 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             width: min(90vw, 480px);
             aspect-ratio: 1 / 1;
+            touch-action: none;
+            -webkit-user-select: none;
         }
         
         .square {
@@ -151,7 +153,9 @@
             cursor: pointer;
             transition: background-color 0.2s;
             user-select: none;
-            touch-action: manipulation;
+            touch-action: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
         
         .light {
@@ -419,7 +423,16 @@
                     square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
                     square.dataset.row = row;
                     square.dataset.col = col;
-                    square.onclick = () => handleSquareClick(row, col);
+
+                    // Mouse click
+                    square.addEventListener('click', () => handleSquareClick(row, col));
+
+                    // Touch — prevent ghost click delay and scrolling interfering
+                    square.addEventListener('touchend', e => {
+                        e.preventDefault();
+                        handleSquareClick(row, col);
+                    }, { passive: false });
+
                     boardEl.appendChild(square);
                 }
             }
